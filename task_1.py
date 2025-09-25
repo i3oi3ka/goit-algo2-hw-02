@@ -1,4 +1,4 @@
-def find_max_min(numbers):
+def find_max_min(numbers: list) -> tuple:
     """
     Find the maximum and minimum elements in a list using the
     divide and conquer approach.
