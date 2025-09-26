@@ -17,17 +17,25 @@ class PrinterConstraints:
 
 
 def find_most_priority_job(print_jobs: List[Dict]) -> int:
-    if len(print_jobs) == 1 or print_jobs[0]["priority"] == 1:
+    if len(print_jobs) == 1:
         return 0
-    max_priority_job = 0
+    index = 0
+    max_priority_job = print_jobs[index]["priority"]
+    min_volume = print_jobs[index]["volume"]
 
     for i in range(1, len(print_jobs)):
-        if print_jobs[i]["priority"] == 1:
-            return i
-        if print_jobs[i]["priority"] < print_jobs[max_priority_job]["priority"]:
-            max_priority_job = i
+        if print_jobs[i]["priority"] < max_priority_job:
+            max_priority_job = print_jobs[i]["priority"]
+            min_volume = print_jobs[i]["volume"]
+            index = i
+        if (
+            print_jobs[i]["priority"] == max_priority_job
+            and print_jobs[i]["volume"] < min_volume
+        ):
+            min_volume = print_jobs[i]["volume"]
+            index = i
 
-    return max_priority_job
+    return index
 
 
 def optimize_printing(print_jobs: List[Dict], constraints: Dict) -> Dict:
