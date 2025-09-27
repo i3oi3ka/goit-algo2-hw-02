@@ -16,28 +16,6 @@ class PrinterConstraints:
     max_items: int
 
 
-def find_most_priority_job(print_jobs: List[Dict]) -> int:
-    if len(print_jobs) == 1:
-        return 0
-    index = 0
-    max_priority_job = print_jobs[index]["priority"]
-    min_volume = print_jobs[index]["volume"]
-
-    for i in range(1, len(print_jobs)):
-        if print_jobs[i]["priority"] < max_priority_job:
-            max_priority_job = print_jobs[i]["priority"]
-            min_volume = print_jobs[i]["volume"]
-            index = i
-        if (
-            print_jobs[i]["priority"] == max_priority_job
-            and print_jobs[i]["volume"] < min_volume
-        ):
-            min_volume = print_jobs[i]["volume"]
-            index = i
-
-    return index
-
-
 def optimize_printing(print_jobs: List[Dict], constraints: Dict) -> Dict:
     """
     Оптимізує чергу 3D-друку згідно з пріоритетами та обмеженнями принтера
@@ -49,24 +27,16 @@ def optimize_printing(print_jobs: List[Dict], constraints: Dict) -> Dict:
     Returns:
         Dict з порядком друку та загальним часом
     """
-    current_print_jobs = print_jobs.copy()
-    total_time = 0
-    total_volume = 0
+
     print_order = []
+    total_time = 0
+    jobs = [PrintJob(**job) for job in print_jobs]
+    printer = PrinterConstraints(**constraints)
 
-    while total_volume <= constraints["max_volume"] or len(current_print_jobs) >= 1:
-        current_job_index = find_most_priority_job(current_print_jobs)
-        if (
-            total_volume + current_print_jobs[current_job_index]["volume"]
-            > constraints["max_volume"]
-        ):
-            break
-        print_order.append(current_print_jobs[current_job_index]["id"])
-        total_time += current_print_jobs[current_job_index]["print_time"]
-        total_volume += current_print_jobs[current_job_index]["volume"]
-        current_print_jobs.pop(current_job_index)
-
-    return {"print_order": print_order, "total_time": total_volume}
+    for pririty in [1,2,3]:
+        
+    
+    return {"print_order": print_order, "total_time": total_time}
 
 
 # Тестування
