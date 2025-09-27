@@ -19,23 +19,42 @@ class PrinterConstraints:
 def optimize_printing(print_jobs: List[Dict], constraints: Dict) -> Dict:
     """
     Оптимізує чергу 3D-друку згідно з пріоритетами та обмеженнями принтера
-
-    Args:
-        print_jobs: Список завдань на друк
-        constraints: Обмеження принтера
-
-    Returns:
-        Dict з порядком друку та загальним часом
+    за greedy-стратегією (спершу пріоритет, потім об'єм).
     """
-
-    print_order = []
-    total_time = 0
     jobs = [PrintJob(**job) for job in print_jobs]
     printer = PrinterConstraints(**constraints)
 
-    for pririty in [1,2,3]:
-        
-    
+    # Greedy: спершу пріоритет, далі об'єм (менший об'єм = зручніше заповнити)
+    jobs.sort(key=lambda j: (j.priority, j.volume))
+
+    total_time = 0
+    print_order = []
+
+    group = []
+    current_volume = 0
+
+    for job in jobs:
+        # Якщо завдання влазить у поточну групу
+        if (
+            len(group) < printer.max_items
+            and current_volume + job.volume <= printer.max_volume
+        ):
+            group.append(job)
+            current_volume += job.volume
+        else:
+            # Друкуємо поточну групу
+            total_time += max(j.print_time for j in group)
+            print_order.extend(j.id for j in group)
+
+            # Починаємо нову групу з поточного завдання
+            group = [job]
+            current_volume = job.volume
+
+    # Друкуємо останню групу
+    if group:
+        total_time += max(j.print_time for j in group)
+        print_order.extend(j.id for j in group)
+
     return {"print_order": print_order, "total_time": total_time}
 
 
