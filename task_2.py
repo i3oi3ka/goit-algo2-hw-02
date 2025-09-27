@@ -24,8 +24,7 @@ def optimize_printing(print_jobs: List[Dict], constraints: Dict) -> Dict:
     jobs = [PrintJob(**job) for job in print_jobs]
     printer = PrinterConstraints(**constraints)
 
-    # Greedy: спершу пріоритет, далі об'єм (менший об'єм = зручніше заповнити)
-    jobs.sort(key=lambda j: (j.priority, j.volume))
+    jobs.sort(key=lambda j: j.priority)
 
     total_time = 0
     print_order = []
@@ -34,7 +33,6 @@ def optimize_printing(print_jobs: List[Dict], constraints: Dict) -> Dict:
     current_volume = 0
 
     for job in jobs:
-        # Якщо завдання влазить у поточну групу
         if (
             len(group) < printer.max_items
             and current_volume + job.volume <= printer.max_volume
@@ -42,15 +40,12 @@ def optimize_printing(print_jobs: List[Dict], constraints: Dict) -> Dict:
             group.append(job)
             current_volume += job.volume
         else:
-            # Друкуємо поточну групу
             total_time += max(j.print_time for j in group)
             print_order.extend(j.id for j in group)
-
-            # Починаємо нову групу з поточного завдання
+            print(group)
             group = [job]
             current_volume = job.volume
 
-    # Друкуємо останню групу
     if group:
         total_time += max(j.print_time for j in group)
         print_order.extend(j.id for j in group)
